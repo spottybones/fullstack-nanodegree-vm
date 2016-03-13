@@ -107,6 +107,20 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+
+    # Load a list of matches already played. this list will be used to check
+    # each pairing generated to see if it's been already played.
+    db = connect()
+    c = db.cursor()
+    c.execute('select * from matches')
+    matches_played = c.fetchall()
+    db.close()
+
+    # To generate pairings get the list of players from the playerStandings()
+    # function and compairing pairs by pulling two players from the list and
+    # checking to see if they have already played. If not they are added to the
+    # list of pairings to be returned. It they have played before then player2
+    # is put on a stack and will be called for a future pairing.
     standings = playerStandings()
     pairings = []
     while standings:
