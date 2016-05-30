@@ -29,6 +29,7 @@ def newMenuItem(restaurant_id):
         menu_item = MenuItem(name=request.form['name'],
                              description=request.form['description'],
                              price=request.form['price'],
+                             course=request.form['course'],
                              restaurant_id=restaurant_id
                              )
         session.add(menu_item)
@@ -39,9 +40,22 @@ def newMenuItem(restaurant_id):
 
 
 # Task 2: Create route for editMenuItem function here
-@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit/')
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit/',
+    methods=['GET', 'POST'])
 def editMenuItem(restaurant_id, menu_id):
-    return "page to edit a menu item. Task 2 complete!"
+    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    menu_item = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method == 'POST':
+        menu_item.name = request.form['name']
+        menu_item.description = request.form['description']
+        menu_item.price = request.form['price']
+        menu_item.course = request.form['course']
+        session.add(menu_item)
+        session.commit()
+        return redirect(url_for('restaurantMenu', restaurant_id=restaurant.id))
+    else:
+        return render_template('editmenuitem.html', restaurant=restaurant,
+                               menu_item=menu_item)
 
 # Task 3: Create a route for deleteMenuItem function here
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/')
