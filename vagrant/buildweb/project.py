@@ -34,6 +34,7 @@ def newMenuItem(restaurant_id):
                              )
         session.add(menu_item)
         session.commit()
+        flash("menu item {} created!".format(menu_item.name))
         return redirect(url_for('restaurantMenu', restaurant_id=restaurant.id))
     else:
         return render_template('newmenuitem.html', restaurant=restaurant)
@@ -52,6 +53,7 @@ def editMenuItem(restaurant_id, menu_id):
         menu_item.course = request.form['course']
         session.add(menu_item)
         session.commit()
+        flash("menu item {} edited!".format(menu_item.name))
         return redirect(url_for('restaurantMenu', restaurant_id=restaurant.id))
     else:
         return render_template('editmenuitem.html', restaurant=restaurant,
@@ -66,6 +68,7 @@ def deleteMenuItem(restaurant_id, menu_id):
     if request.method == 'POST':
         session.delete(item)
         session.commit()
+        flash("menu item {} deleted!".format(item.name))
         return redirect(url_for('restaurantMenu', restaurant_id=restaurant.id))
     else:
         return render_template('deletemenuitem.html', restaurant=restaurant,
@@ -73,6 +76,6 @@ def deleteMenuItem(restaurant_id, menu_id):
 
 
 if __name__ == '__main__':
-    app.secret_key = 'super secret key'
+    app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
