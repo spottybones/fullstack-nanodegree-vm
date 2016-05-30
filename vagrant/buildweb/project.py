@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, flash
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Restaurant, MenuItem
@@ -58,10 +58,21 @@ def editMenuItem(restaurant_id, menu_id):
                                menu_item=menu_item)
 
 # Task 3: Create a route for deleteMenuItem function here
-@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/')
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete/',
+    methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
-    return "page to delete a menu item. Task 3 complete!"
+    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+    item = session.query(MenuItem).filter_by(id=menu_id).one()
+    if request.method == 'POST':
+        session.delete(item)
+        session.commit()
+        return redirect(url_for('restaurantMenu', restaurant_id=restaurant.id))
+    else:
+        return render_template('deletemenuitem.html', restaurant=restaurant,
+                               item=item)
+
 
 if __name__ == '__main__':
+    app.secret_key = 'super secret key'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
