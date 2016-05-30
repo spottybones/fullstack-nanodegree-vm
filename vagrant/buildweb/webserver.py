@@ -82,6 +82,27 @@ class webserverHandler(BaseHTTPRequestHandler):
                 print output
                 return
 
+            delete_restaurant = re.match(r'/restaurants/(\d+)/delete$', self.path)
+            if delete_restaurant:
+                """delete a restaurant"""
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+
+                my_restaurant = session.query(Restaurant).get(int(delete_restaurant.group(1)))
+
+                output = """<html><body><h1>Delete Restaurant</h1>
+                    <p><a href="/restaurants">Back to Restaurant List</a></p>
+                    <form method='POST' enctype='multipart/form-data'>
+                        <h2>Are you sure you want to delete: {0}?</h2>
+                        <input name='id' type='hidden' value='{1}'>
+                        <input type='submit' value='Yes Delete'>
+                    </form>
+                    </body></html>
+                    """.format(my_restaurant.name, my_restaurant.id)
+                self.wfile.write(output)
+                print output
+                return
 
             # if self.path.endswith('/hola'):
             if path_parts[-1] == 'hola':
@@ -161,6 +182,22 @@ class webserverHandler(BaseHTTPRequestHandler):
                     session.commit()
 
                 print('Restaurant name: {} updated.'.format(my_restaurant.name))
+                return
+
+            delete_restaurant = re.match(r'/restaurants/(\d+)/delete$', self.path)
+            if delete_restaurant:
+                ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+                if ctype == 'multipart/form-data':
+                    fields = cgi.parse_multipart(self.rfile, pdict)
+                    my_restaurant = session.query(Restaurant).get(
+                        int(delete_restaurant.group(1)))
+                    session.delete(my_restaurant)
+                    session.commit()
+                    print('Restaurant: {} deleted'.format(my_restaurant.name))
+
+                self.send_response(301)
+                self.send_header('Location', '/restaurants')
+                self.end_headers()
                 return
 
         except:
